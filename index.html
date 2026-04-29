@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Finansialku</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0b0f1e;
+    --card: rgba(255,255,255,0.04);
+    --card-solid: #131829;
+    --accent: #e8a838;
+    --green: #34d399;
+    --red: #f87171;
+    --muted: #64748b;
+    --border: rgba(255,255,255,0.08);
+    --text: #f0f4ff;
+    --text2: #94a3b8;
+    --radius: 20px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 0 0 60px 0;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  /* BG ANIMATION */
+  .bg-canvas { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+  .orb { position: absolute; border-radius: 50%; filter: blur(60px); opacity: 0.18; }
+  .orb-1 { width: 340px; height: 340px; background: #4f6ef7; top: -80px; left: -80px; animation: drift1 12s ease-in-out infinite alternate; }
+  .orb-2 { width: 280px; height: 280px; background: #e8a838; top: 30%; right: -60px; animation: drift2 15s ease-in-out infinite alternate; }
+  .orb-3 { width: 220px; height: 220px; background: #7c3aed; bottom: 20%; left: 10%; animation: drift3 10s ease-in-out infinite alternate; }
+  .orb-4 { width: 180px; height: 180px; background: #34d399; bottom: 5%; right: 5%; animation: drift4 13s ease-in-out infinite alternate; opacity: 0.10; }
+  @keyframes drift1 { from{transform:translate(0,0) scale(1)} to{transform:translate(60px,80px) scale(1.15)} }
+  @keyframes drift2 { from{transform:translate(0,0) scale(1)} to{transform:translate(-50px,60px) scale(0.9)} }
+  @keyframes drift3 { from{transform:translate(0,0) scale(1)} to{transform:translate(40px,-50px) scale(1.1)} }
+  @keyframes drift4 { from{transform:translate(0,0)} to{transform:translate(-30px,-40px)} }
+  .particles { position: absolute; inset: 0; }
+  .particle { position: absolute; width: 2px; height: 2px; background: rgba(255,255,255,0.4); border-radius: 50%; animation: floatUp linear infinite; }
+  @keyframes floatUp { 0%{transform:translateY(100vh) scale(0);opacity:0} 10%{opacity:1} 90%{opacity:.5} 100%{transform:translateY(-10vh) scale(1);opacity:0} }
+  .bg-grid { position: absolute; inset: 0; background-image: linear-gradient(rgba(255,255,255,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.025) 1px,transparent 1px); background-size: 40px 40px; }
+
+  .app { width: 100%; max-width: 420px; position: relative; z-index: 1; animation: fadeIn 0.7s cubic-bezier(0.22,1,0.36,1); }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
+
+  /* HERO */
+  .hero { background: linear-gradient(160deg,#16213e 0%,#0d1b3e 100%); padding: 40px 28px 52px; position: relative; overflow: hidden; border-bottom: 1px solid rgba(255,255,255,0.05); }
+  .hero-glow { position: absolute; width: 260px; height: 260px; background: radial-gradient(circle,rgba(79,110,247,0.25) 0%,transparent 70%); top: -80px; right: -60px; border-radius: 50%; animation: heroGlow 6s ease-in-out infinite alternate; }
+  .hero-glow2 { position: absolute; width: 200px; height: 200px; background: radial-gradient(circle,rgba(232,168,56,0.12) 0%,transparent 70%); bottom: -60px; left: -40px; border-radius: 50%; animation: heroGlow 8s ease-in-out infinite alternate-reverse; }
+  @keyframes heroGlow { from{transform:scale(1) translate(0,0);opacity:.7} to{transform:scale(1.2) translate(20px,20px);opacity:1} }
+  .hero-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 36px; position: relative; }
+  .app-name { font-family: 'DM Serif Display', serif; font-size: 22px; color: #fff; }
+  .date-badge { font-size: 11px; color: rgba(255,255,255,0.4); background: rgba(255,255,255,0.06); padding: 5px 12px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.08); }
+  .saldo-label { font-size: 10px; color: rgba(255,255,255,0.4); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 10px; position: relative; }
+  .saldo-amount { font-family: 'DM Serif Display', serif; font-size: 36px; color: #fff; letter-spacing: -1px; line-height: 1.1; position: relative; }
+  .saldo-dot { display: inline-block; width: 8px; height: 8px; background: var(--accent); border-radius: 50%; margin-right: 8px; margin-bottom: 4px; animation: blink 2s ease-in-out infinite; }
+  @keyframes blink { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(.7)} }
+
+  /* STATS */
+  .stats-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 0 18px; margin-top: -30px; position: relative; z-index: 2; margin-bottom: 22px; }
+  .stat-card { background: rgba(19,24,41,0.95); border-radius: 16px; padding: 16px; border: 1px solid rgba(255,255,255,0.07); backdrop-filter: blur(12px); box-shadow: 0 8px 32px rgba(0,0,0,.3); transition: transform .2s; }
+  .stat-card:active { transform: scale(0.97); }
+  .stat-icon { width: 30px; height: 30px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 14px; margin-bottom: 10px; }
+  .stat-icon.in { background: rgba(52,211,153,.15); }
+  .stat-icon.out { background: rgba(248,113,113,.15); }
+  .stat-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; }
+  .stat-value { font-size: 13px; font-weight: 600; transition: all .4s; }
+  .stat-value.in { color: var(--green); }
+  .stat-value.out { color: var(--red); }
+
+  /* SECTION */
+  .section { padding: 0 18px; margin-bottom: 22px; }
+  .section-title { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 14px; }
+  .form-card { background: rgba(19,24,41,.8); border-radius: var(--radius); padding: 20px; border: 1px solid rgba(255,255,255,.07); backdrop-filter: blur(16px); box-shadow: 0 4px 24px rgba(0,0,0,.2); }
+  .input-label { font-size: 11px; font-weight: 500; color: var(--muted); margin-bottom: 6px; display: block; letter-spacing: .5px; }
+  .input-group { margin-bottom: 14px; }
+  input[type="text"], input[type="number"] { width: 100%; padding: 13px 16px; border: 1.5px solid rgba(255,255,255,.08); border-radius: 12px; font-size: 14px; font-family: 'DM Sans',sans-serif; color: var(--text); background: rgba(255,255,255,.04); transition: border-color .2s,box-shadow .2s,background .2s; outline: none; }
+  input[type="text"]:focus, input[type="number"]:focus { border-color: rgba(79,110,247,.5); box-shadow: 0 0 0 3px rgba(79,110,247,.1); background: rgba(255,255,255,.06); }
+  input::placeholder { color: rgba(255,255,255,.18); }
+  .toggle-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 16px; }
+  .toggle-btn { padding: 12px; border: 1.5px solid rgba(255,255,255,.08); border-radius: 12px; font-size: 13px; font-weight: 500; font-family: 'DM Sans',sans-serif; cursor: pointer; background: rgba(255,255,255,.03); color: var(--muted); transition: all .25s; text-align: center; }
+  .toggle-btn.active-in { background: rgba(52,211,153,.12); border-color: rgba(52,211,153,.4); color: var(--green); }
+  .toggle-btn.active-out { background: rgba(248,113,113,.12); border-color: rgba(248,113,113,.4); color: var(--red); }
+  .save-btn { width: 100%; padding: 15px; background: linear-gradient(135deg,#4f6ef7,#7c3aed); color: #fff; border: none; border-radius: 14px; font-size: 15px; font-weight: 600; font-family: 'DM Sans',sans-serif; cursor: pointer; transition: all .2s; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 20px rgba(79,110,247,.35); }
+  .save-btn:hover { filter: brightness(1.1); }
+  .save-btn:active { transform: scale(.98); }
+  .save-btn:disabled { background: rgba(255,255,255,.08); color: var(--muted); cursor: not-allowed; transform: none; box-shadow: none; filter: none; }
+  .loader-text { display: none; text-align: center; font-size: 12px; color: var(--muted); margin-top: 10px; animation: pulse 1.2s ease-in-out infinite; }
+  @keyframes pulse { 0%,100%{opacity:.4} 50%{opacity:1} }
+
+  /* HISTORY */
+  .histori-list { display: flex; flex-direction: column; gap: 10px; }
+  .histori-item { display: flex; align-items: center; gap: 12px; background: rgba(19,24,41,.7); border: 1px solid rgba(255,255,255,.06); border-radius: 14px; padding: 14px 16px; backdrop-filter: blur(8px); animation: slideIn .4s cubic-bezier(.22,1,.36,1) both; transition: border-color .2s; }
+  .histori-item:hover { border-color: rgba(255,255,255,.12); }
+  @keyframes slideIn { from{opacity:0;transform:translateX(-12px)} to{opacity:1;transform:translateX(0)} }
+  .histori-dot { width: 38px; height: 38px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+  .histori-dot.in { background: rgba(52,211,153,.12); }
+  .histori-dot.out { background: rgba(248,113,113,.12); }
+  .histori-info { flex: 1; min-width: 0; }
+  .histori-ket { font-size: 13px; font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 2px; }
+  .histori-jenis { font-size: 11px; color: var(--muted); }
+  .histori-nominal { font-size: 13px; font-weight: 600; white-space: nowrap; }
+  .histori-nominal.in { color: var(--green); }
+  .histori-nominal.out { color: var(--red); }
+  .empty-state { text-align: center; padding: 28px; color: var(--muted); font-size: 13px; }
+
+  /* TOAST */
+  .toast { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(100px); background: rgba(19,24,41,.95); color: #fff; padding: 12px 24px; border-radius: 30px; font-size: 13px; font-weight: 500; transition: transform .4s cubic-bezier(.22,1,.36,1); z-index: 999; white-space: nowrap; border: 1px solid rgba(255,255,255,.1); backdrop-filter: blur(12px); box-shadow: 0 8px 32px rgba(0,0,0,.4); }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<div class="bg-canvas">
+  <div class="bg-grid"></div>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+  <div class="orb orb-4"></div>
+  <div class="particles" id="particles"></div>
+</div>
+
+<div class="app">
+  <div class="hero">
+    <div class="hero-glow"></div>
+    <div class="hero-glow2"></div>
+    <div class="hero-top">
+      <span class="app-name">Finansialku</span>
+      <span class="date-badge" id="tanggal"></span>
+    </div>
+    <div class="saldo-label">Total Saldo</div>
+    <div class="saldo-amount"><span class="saldo-dot"></span><span id="txtSaldo">Memuat...</span></div>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-icon in">📈</div>
+      <div class="stat-label">Pemasukan</div>
+      <div class="stat-value in" id="txtMasuk">-</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon out">📉</div>
+      <div class="stat-label">Pengeluaran</div>
+      <div class="stat-value out" id="txtKeluar">-</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Transaksi Baru</div>
+    <div class="form-card">
+      <div class="input-group">
+        <label class="input-label">Keterangan</label>
+        <input type="text" id="ket" placeholder="Contoh: Gaji, Makan siang...">
+      </div>
+      <div class="input-group">
+        <label class="input-label">Nominal (Rp)</label>
+        <input type="number" id="jumlah" placeholder="0">
+      </div>
+      <div class="input-group">
+        <label class="input-label">Jenis Transaksi</label>
+        <div class="toggle-row">
+          <button class="toggle-btn active-in" id="btnMasuk" onclick="setJenis('Pemasukan')">+ Pemasukan</button>
+          <button class="toggle-btn" id="btnKeluar" onclick="setJenis('Pengeluaran')">− Pengeluaran</button>
+        </div>
+      </div>
+      <button class="save-btn" id="btn" onclick="kirim()">
+        <span>💾</span> Simpan Transaksi
+      </button>
+      <div class="loader-text" id="loader">⏳ Menyimpan data...</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Transaksi Terakhir</div>
+    <div id="historiBox" class="histori-list">
+      <div class="empty-state">Memuat data...</div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  // ⚠️ GANTI URL INI dengan URL deployment Apps Script Anda
+  const API_URL = 'https://script.google.com/macros/s/AKfycbzVp-SJOqkBJdkF89qdk-Jo_hPVj86L-ftJL6LpcVHGcnq3MEqH0puJBHN6RxcqGmc1/exec';
+
+  document.getElementById('tanggal').textContent = new Date().toLocaleDateString('id-ID', {
+    day: 'numeric', month: 'short', year: 'numeric'
+  });
+
+  // Particles
+  const container = document.getElementById('particles');
+  for (let i = 0; i < 18; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    p.style.left = Math.random() * 100 + '%';
+    p.style.width = p.style.height = (Math.random() * 2 + 1) + 'px';
+    p.style.animationDuration = (Math.random() * 14 + 10) + 's';
+    p.style.animationDelay = (Math.random() * 12) + 's';
+    p.style.opacity = Math.random() * 0.4 + 0.1;
+    container.appendChild(p);
+  }
+
+  let jenisAktif = 'Pemasukan';
+
+  function setJenis(j) {
+    jenisAktif = j;
+    const btnM = document.getElementById('btnMasuk');
+    const btnK = document.getElementById('btnKeluar');
+    btnM.className = j === 'Pemasukan' ? 'toggle-btn active-in' : 'toggle-btn';
+    btnK.className = j === 'Pengeluaran' ? 'toggle-btn active-out' : 'toggle-btn';
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2500);
+  }
+
+  function render(res) {
+    document.getElementById('txtSaldo').textContent = res.saldo;
+    document.getElementById('txtMasuk').textContent = res.masuk;
+    document.getElementById('txtKeluar').textContent = res.keluar;
+    const box = document.getElementById('historiBox');
+    if (!res.histori || res.histori.length === 0) {
+      box.innerHTML = '<div class="empty-state">Belum ada transaksi</div>';
+    } else {
+      box.innerHTML = res.histori.map((h, i) => {
+        const isIn = h.jenis === 'Pemasukan';
+        return `<div class="histori-item" style="animation-delay:${i * 0.06}s">
+          <div class="histori-dot ${isIn ? 'in' : 'out'}">${isIn ? '💰' : '🛍️'}</div>
+          <div class="histori-info">
+            <div class="histori-ket">${h.ket}</div>
+            <div class="histori-jenis">${h.jenis}</div>
+          </div>
+          <div class="histori-nominal ${isIn ? 'in' : 'out'}">${isIn ? '+' : '-'}${h.nominal}</div>
+        </div>`;
+      }).join('');
+    }
+    setLoading(false);
+  }
+
+  function setLoading(v) {
+    document.getElementById('btn').disabled = v;
+    document.getElementById('loader').style.display = v ? 'block' : 'none';
+  }
+
+  async function loadData() {
+    try {
+      const res = await fetch(API_URL + '?action=getData');
+      const data = await res.json();
+      render(data);
+    } catch(e) {
+      showToast('⚠️ Gagal memuat data');
+      document.getElementById('txtSaldo').textContent = 'Error';
+    }
+  }
+
+  async function kirim() {
+    const ket = document.getElementById('ket').value.trim();
+    const jumlah = document.getElementById('jumlah').value;
+    if (!ket || !jumlah) { showToast('⚠️ Lengkapi data terlebih dahulu!'); return; }
+
+    setLoading(true);
+    try {
+      const res = await fetch(API_URL, {
+        method: 'POST',
+        body: JSON.stringify({ ket, jumlah, jenis: jenisAktif })
+      });
+      const data = await res.json();
+      render(data);
+      document.getElementById('ket').value = '';
+      document.getElementById('jumlah').value = '';
+      showToast('✅ Transaksi berhasil disimpan!');
+    } catch(e) {
+      setLoading(false);
+      showToast('❌ Gagal menyimpan, coba lagi.');
+    }
+  }
+
+  loadData();
+</script>
+</body>
+</html>
